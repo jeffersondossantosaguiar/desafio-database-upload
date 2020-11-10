@@ -1,26 +1,47 @@
-import { Router } from 'express';
+import { Router } from 'express'
+import { getCustomRepository } from 'typeorm'
 
-// import TransactionsRepository from '../repositories/TransactionsRepository';
-// import CreateTransactionService from '../services/CreateTransactionService';
+import TransactionsRepository from '../repositories/TransactionsRepository'
+import CreateTransactionService from '../services/CreateTransactionService'
 // import DeleteTransactionService from '../services/DeleteTransactionService';
 // import ImportTransactionsService from '../services/ImportTransactionsService';
 
-const transactionsRouter = Router();
+const transactionsRouter = Router()
 
 transactionsRouter.get('/', async (request, response) => {
-  // TODO
-});
+  const transactionsRepository = getCustomRepository(TransactionsRepository)
+  const transactions = await transactionsRepository.find({ relations: ["category"] })
+  const balance = await transactionsRepository.getBalance()
+
+  const transactionsPlusBalance = {
+    transactions: transactions,
+    balance: balance
+  }
+
+  return response.json(transactionsPlusBalance)
+})
 
 transactionsRouter.post('/', async (request, response) => {
-  // TODO
-});
+  const { title, value, type, category } = request.body
+
+  const createTransation = new CreateTransactionService
+
+  const transaction = await createTransation.execute({
+    title,
+    value,
+    type,
+    category
+  })
+
+  return response.json(transaction)
+})
 
 transactionsRouter.delete('/:id', async (request, response) => {
   // TODO
-});
+})
 
 transactionsRouter.post('/import', async (request, response) => {
   // TODO
-});
+})
 
-export default transactionsRouter;
+export default transactionsRouter
