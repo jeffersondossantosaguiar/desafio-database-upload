@@ -1,9 +1,10 @@
 import csv from 'csvtojson'
-import { getCustomRepository } from "typeorm"
+import { getCustomRepository, getRepository } from "typeorm"
 
 import Transaction from '../models/Transaction'
 import TransactionsRepository from '../repositories/TransactionsRepository'
 import CategoriesRepository from '../repositories/CategoriesRepository'
+import Category from '../models/Category'
 
 class ImportTransactionsService {
   async execute(userAvatarFilePath: string): Promise<Transaction[]> {
@@ -13,27 +14,34 @@ class ImportTransactionsService {
     const categoriesRespository = getCustomRepository(CategoriesRepository)
 
     const transactions: Transaction[] = []
-    let categoryObj = {}
+    let categoryObj: Category
 
-    await Promise.all(transactionsArray.map(async t => {
-
-      const findCategory = await categoriesRespository.findByTitle(t.category)
-      console.log(findCategory)
+    const categoriesMap = transactionsArray.map(transaction => transaction.category)
+    const categoriesFiltred = categoriesMap.filter(function (item, pos) {
+      return categoriesMap.indexOf(item) == pos
+    })
+    await Promise.all(categoriesFiltred.map(async category => {
+      const findCategory = await categoriesRespository.findByTitle(category)
 
       if (findCategory) {
         categoryObj = findCategory
       } else {
         categoryObj = categoriesRespository.create({
-          title: t.category
+          title: category
         })
         await categoriesRespository.save(categoryObj)
       }
+    }))
+
+    await Promise.all(transactionsArray.map(async t => {
+
+      const category = await categoriesRespository.findByTitle(t.category)
 
       const transaction = transactionsRepository.create({
         title: t.title,
         value: t.value,
         type: t.type,
-        category: categoryObj
+        category
       })
       transactions.push(transaction)
     }))

@@ -51,7 +51,7 @@ transactionsRouter.delete('/:id', async (request, response) => {
   }
 })
 
-transactionsRouter.post('/import', upload.single('transactions'), async (request, response) => {
+transactionsRouter.post('/import', upload.single('file'), async (request, response) => {
   const userAvatarFilePath = path.join(uploadConfig.directory, request.file.filename)
   const importTransactions = new ImportTransactionsService
 

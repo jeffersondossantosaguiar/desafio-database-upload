@@ -28,8 +28,6 @@ class CreateTransactionService {
     let categoryObj = {}
 
     const findCategory = await categoriesRespository.findByTitle(category)
-    console.log(findCategory)
-
 
     if (findCategory) {
       categoryObj = findCategory
