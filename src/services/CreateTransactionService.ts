@@ -20,9 +20,15 @@ class CreateTransactionService {
     const transactionsRepository = getCustomRepository(TransactionsRepository)
     const categoriesRespository = getCustomRepository(CategoriesRepository)
 
-    const findCategory = await categoriesRespository.findByTitle(category)
+    const balance = await transactionsRepository.getBalance()
+
+    if (type === 'outcome' && value > balance.total) {
+      throw new AppError("Balance unavailable!", 400)
+    }
 
     let categoryObj = {}
+
+    const findCategory = await categoriesRespository.findByTitle(category)
 
     if (findCategory) {
       categoryObj = findCategory

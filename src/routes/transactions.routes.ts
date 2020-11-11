@@ -1,12 +1,17 @@
 import { Router } from 'express'
+import fs from 'fs'
+import path from 'path'
 import { getCustomRepository } from 'typeorm'
+import multer from 'multer'
+import uploadConfig from '../config/upload'
 
 import TransactionsRepository from '../repositories/TransactionsRepository'
 import CreateTransactionService from '../services/CreateTransactionService'
-// import DeleteTransactionService from '../services/DeleteTransactionService';
-// import ImportTransactionsService from '../services/ImportTransactionsService';
+import DeleteTransactionService from '../services/DeleteTransactionService'
+import ImportTransactionsService from '../services/ImportTransactionsService'
 
 const transactionsRouter = Router()
+const upload = multer(uploadConfig)
 
 transactionsRouter.get('/', async (request, response) => {
   const transactionsRepository = getCustomRepository(TransactionsRepository)
@@ -37,11 +42,22 @@ transactionsRouter.post('/', async (request, response) => {
 })
 
 transactionsRouter.delete('/:id', async (request, response) => {
-  // TODO
+  const id = request.params.id
+  const deleteTransaction = new DeleteTransactionService
+
+  const deleteResult = await deleteTransaction.execute(id)
+
+  if (deleteResult) {
+    return response.json({ message: 'transaction deleted successfully' })
+  }
 })
 
-transactionsRouter.post('/import', async (request, response) => {
-  // TODO
+transactionsRouter.post('/import', upload.single('transactions'), async (request, response) => {
+  const userAvatarFilePath = path.join(uploadConfig.directory, request.file.filename)
+  let data = fs.createReadStream(userAvatarFilePath, 'utf8')
+  console.log(data)
+
+  response.json({ message: 'ok' })
 })
 
 export default transactionsRouter
