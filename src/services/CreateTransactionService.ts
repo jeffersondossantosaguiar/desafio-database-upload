@@ -1,9 +1,8 @@
-import { getCustomRepository, getRepository } from "typeorm"
+import { getCustomRepository } from "typeorm"
 
 import AppError from '../errors/AppError'
 
 import Transaction from '../models/Transaction'
-import Category from '../models/Category'
 
 import TransactionsRepository from '../repositories/TransactionsRepository'
 import CategoriesRepository from '../repositories/CategoriesRepository'
@@ -29,6 +28,8 @@ class CreateTransactionService {
     let categoryObj = {}
 
     const findCategory = await categoriesRespository.findByTitle(category)
+    console.log(findCategory)
+
 
     if (findCategory) {
       categoryObj = findCategory

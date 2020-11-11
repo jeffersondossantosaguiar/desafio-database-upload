@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import fs from 'fs'
 import path from 'path'
 import { getCustomRepository } from 'typeorm'
 import multer from 'multer'
@@ -54,10 +53,11 @@ transactionsRouter.delete('/:id', async (request, response) => {
 
 transactionsRouter.post('/import', upload.single('transactions'), async (request, response) => {
   const userAvatarFilePath = path.join(uploadConfig.directory, request.file.filename)
-  let data = fs.createReadStream(userAvatarFilePath, 'utf8')
-  console.log(data)
+  const importTransactions = new ImportTransactionsService
 
-  response.json({ message: 'ok' })
+  const importTransactionsResult = await importTransactions.execute(userAvatarFilePath)
+
+  return response.json(importTransactionsResult)
 })
 
 export default transactionsRouter

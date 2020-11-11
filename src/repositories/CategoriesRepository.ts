@@ -9,7 +9,6 @@ class CategoriesRepository extends Repository<Category> {
     const findCategory = await this.findOne({
       where: { title: category }
     })
-
     return findCategory || null
   }
 }
